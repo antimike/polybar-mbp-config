@@ -1,7 +1,18 @@
 #!/usr/bin/env bash
 
 dir="$HOME/.config/polybar"
-themes=(`ls --hide="launch.sh" $dir`)
+
+export DPI="$(xrdb -query | grep dpi | cut -f2)"
+export HEIGHT="$((18 * DPI / 96))"
+export BATTERY="$(find /sys/class/power_supply -name "BAT*" -printf '%f')"
+export ADAPTER="$(find /sys/class/power_supply -name "ADP*" -printf '%f')"
+export BACKLIGHT="$(ls -1 /sys/class/backlight | head -1)"
+export WIFI_INTERFACE="$(ip link | grep -o 'wlp[^:]*')"
+
+MONITORS=$(xrandr --current --listactivemonitors | sed -nE 's/ *([0-9]+): [+*]*([^ ]*).*/\2/p' | tr '\n' ' ')
+PRIMARY=$(xrandr --current --listactivemonitors | sed -nE 's/ *([0-9]+): [+]?[*]([^ ]*).*/\2/p')
+NMONITORS=$(echo $MONITORS | wc -w)
+PRIMARY=${PRIMARY:-${MONITORS%% *}}
 
 launch_bar() {
 	# Terminate already running bar instances
@@ -9,6 +20,7 @@ launch_bar() {
 
 	# Wait until the processes have been shut down
 	while pgrep -u $UID -x polybar >/dev/null; do sleep 1; done
+
 
 	# Launch the bar
 	if [[ "$style" == "hack" || "$style" == "cuts" ]]; then
@@ -21,61 +33,15 @@ launch_bar() {
 	fi
 }
 
-if [[ "$1" == "--material" ]]; then
-	style="material"
-	launch_bar
-
-elif [[ "$1" == "--shades" ]]; then
-	style="shades"
-	launch_bar
-
-elif [[ "$1" == "--hack" ]]; then
-	style="hack"
-	launch_bar
-
-elif [[ "$1" == "--docky" ]]; then
-	style="docky"
-	launch_bar
-
-elif [[ "$1" == "--cuts" ]]; then
-	style="cuts"
-	launch_bar
-
-elif [[ "$1" == "--shapes" ]]; then
-	style="shapes"
-	launch_bar
-
-elif [[ "$1" == "--grayblocks" ]]; then
-	style="grayblocks"
-	launch_bar
-
-elif [[ "$1" == "--blocks" ]]; then
-	style="blocks"
-	launch_bar
-
-elif [[ "$1" == "--colorblocks" ]]; then
-	style="colorblocks"
-	launch_bar
-
-elif [[ "$1" == "--forest" ]]; then
-	style="forest"
-	launch_bar
-
-elif [[ "$1" == "--pwidgets" ]]; then
-	style="pwidgets"
-	launch_bar
-
-elif [[ "$1" == "--panels" ]]; then
-	style="panels"
-	launch_bar
-
-else
-	cat <<- EOF
-	Usage : launch.sh --theme
+help() { 
+	cat <<- EOF >&2
+	Usage: launch.sh --theme
 		
-	Available Themes :
-	--blocks    --colorblocks    --cuts      --docky
-	--forest    --grayblocks     --hack      --material
-	--panels    --pwidgets       --shades    --shapes
+	Available Themes:
+	$(find "$dir" -maxdepth 1 -mindepth 1 -type d -printf '--%f\n')
 	EOF
-fi
+}
+
+style="${1#--}"
+(test -n "$style" && test -d "$dir/$style" && launch_bar "$style") || help
+
