@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
+# TODO: Replace hardcoded colornames with call to `ls` or `find`
 SDIR="$HOME/.config/polybar/material/scripts"
 
 # Launch Rofi
-MENU="$(rofi -no-config -no-lazy-grab -sep "|" -dmenu -i -p '' \
+MENU="$(rofi -dpi $DPI -no-config -no-lazy-grab -sep "|" -dmenu -i -p '' \
 -theme $SDIR/rofi/styles.rasi \
 <<< "♥ amber|♥ blue|♥ blue-gray|♥ brown|♥ cyan|♥ deep-orange|\
 ♥ deep-purple|♥ green|♥ gray|♥ indigo|♥ blue-light|♥ green-light|\
