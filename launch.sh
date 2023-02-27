@@ -9,12 +9,34 @@ export ADAPTER="$(find /sys/class/power_supply -name "ADP*" -printf '%f')"
 export BACKLIGHT="$(ls -1 /sys/class/backlight | head -1)"
 export WIFI_INTERFACE="$(ip link | grep -o 'wlp[^:]*')"
 
+
+launch_primary() {
+    return 0
+}
+
+launch_secondary() {
+    return 0
+}
+
+launch_bar() {
 MONITORS=$(xrandr --current --listactivemonitors | sed -nE 's/ *([0-9]+): [+*]*([^ ]*).*/\2/p' | tr '\n' ' ')
 PRIMARY=$(xrandr --current --listactivemonitors | sed -nE 's/ *([0-9]+): [+]?[*]([^ ]*).*/\2/p')
 NMONITORS=$(echo $MONITORS | wc -w)
 PRIMARY=${PRIMARY:-${MONITORS%% *}}
-
-launch_bar() {
+case $NMONITORS in
+    1)
+        MONITOR=$PRIMARY polybar --reload alone >"${LOGFILE}.${MONITOR}" 2>&1 &
+        # systemd-notify --status="Single polybar instance running on $PRIMARY"
+        ;;
+    *)
+        MONITOR=$PRIMARY polybar --reload primary >"${LOGFILE}.${MONITOR}" 2>&1 &
+        for MONITOR in ${MONITORS}; do
+            [ $MONITOR != $PRIMARY ] || continue
+            MONITOR=$MONITOR polybar --reload secondary >"${LOGFILE}.${MONITOR}" 2>&1 &
+        done
+        # systemd-notify --status="$NMONITORS polybar instances running"
+        ;;
+esac
 	# Terminate already running bar instances
 	killall -q polybar
 

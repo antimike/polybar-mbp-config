@@ -17,6 +17,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
+# TODO: Reimplement for DNF
 
 declare -r myname='checkupdates'
 declare -r myver='1.0.0'

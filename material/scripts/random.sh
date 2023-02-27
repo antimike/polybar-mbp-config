@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 # Color files
+# TODO: Replace with files in ~/.cache
 PFILE="$HOME/.config/polybar/material/colors.ini"
 RFILE="$HOME/.config/polybar/material/scripts/rofi/colors.rasi"
 
