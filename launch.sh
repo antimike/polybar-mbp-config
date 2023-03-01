@@ -25,14 +25,14 @@ NMONITORS=$(echo $MONITORS | wc -w)
 PRIMARY=${PRIMARY:-${MONITORS%% *}}
 case $NMONITORS in
     1)
-        MONITOR=$PRIMARY polybar --reload alone >"${LOGFILE}.${MONITOR}" 2>&1 &
+        MONITOR=$PRIMARY polybar --reload alone &>/dev/null &
         # systemd-notify --status="Single polybar instance running on $PRIMARY"
         ;;
     *)
-        MONITOR=$PRIMARY polybar --reload primary >"${LOGFILE}.${MONITOR}" 2>&1 &
+        MONITOR=$PRIMARY polybar --reload primary &>/dev/null &
         for MONITOR in ${MONITORS}; do
             [ $MONITOR != $PRIMARY ] || continue
-            MONITOR=$MONITOR polybar --reload secondary >"${LOGFILE}.${MONITOR}" 2>&1 &
+            MONITOR=$MONITOR polybar --reload secondary &>/dev/null &
         done
         # systemd-notify --status="$NMONITORS polybar instances running"
         ;;

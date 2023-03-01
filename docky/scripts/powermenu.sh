@@ -8,7 +8,7 @@
 dir="~/.config/polybar/docky/scripts/rofi"
 uptime=$(uptime -p | sed -e 's/up //g')
 
-rofi_command="rofi -no-config -theme $dir/powermenu.rasi"
+rofi_command="rofi -dpi $DPI -no-config -theme $dir/powermenu.rasi"
 
 # Options
 shutdown=" Shutdown"
@@ -20,6 +20,7 @@ logout=" Logout"
 # Confirmation
 confirm_exit() {
 	rofi -dmenu\
+        -dpi "$DPI"\
         -no-config\
 		-i\
 		-no-fixed-num-lines\
